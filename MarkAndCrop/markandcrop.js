@@ -14,8 +14,34 @@
                     cont.attr("data-src", config.src);
                 }
             }
+        },
+        getOriginalDimensions: function (src) {
+            var tmp = document.createElement("img");
+            tmp.src = src;
+            return {
+                width: tmp.width,
+                height: tmp.height
+            };
+        },
+        getComputedDimensions: function (od, factor) {
+            return (od / factor);
+        },
+        setBackground: function (cont, config) {
+            if (typeof config === "object") {
+                if (config.src) {
+                    // Get original image dimensions
+                    var originalDimensions = this.getOriginalDimensions(config.src),
+                        computedDimensions = {
+                            width: cont.width(),
+                            height: this.getComputedDimensions(cont.height())
+                        };
+                    
+                    cont.css("background-image", config.src);
+
+                }
+            }
         }
-    };
+    }, cache = {};
 
     $.fn.mark = function (config) {
         if (!config) {
