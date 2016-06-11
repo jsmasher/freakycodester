@@ -7,6 +7,10 @@
     cursor: crosshair;
 }
 
+.cursor-drop {
+    cursor: pointer;
+}
+
 /*Theme specific CSS*/
 
 /* Normal theme */

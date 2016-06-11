@@ -56,10 +56,15 @@
                 }
             }
         },
+        createCopy: function (obj) {
+            return JSON.parse(JSON.stringify(obj));
+        },
         bindListeners: function (cont, config) {
+            var self = this;
             cont.on("imageloaded", function (evt, imageProps) {
                 var markCount = 0,
                     markZIndex = 0,
+                    imageData = null;
                     markData = null;
                 // Set default mark properties
                 config.markProperties = config.markProperties || {
@@ -76,7 +81,8 @@
                     drawable.appendTo(this);
                     markCount += 1;
                     markZIndex += 1;
-                    markData = {
+                    imageData = self.createCopy(imageProps);
+                    imageData.markData = markData = {
                         x: evt.pageX - $(this).offset().left,
                         y: evt.pageY - $(this).offset().top,
                         width: 0,
@@ -92,40 +98,49 @@
                             "left": markData.x,
                             "z-index": markZIndex
                         });
-                        cont.trigger("markadded", [drawable, imageProps]);
+                        $(this).trigger("markadded", [drawable, imageData]);
                         $(this).off("mousemove").on("mousemove", function (evt) {
                             // Set width and height of drawable if dimensions are positive, else change the position
                             if ((evt.pageX - markData.docx) >= 0) {
-                                drawable.css("width", Math.abs((evt.pageX - markData.docx)));
+                                markData.width = Math.abs((evt.pageX - markData.docx));
+                                drawable.css("width", markData.width);
                             } else {
                                 // change x position along with width
+                                markData.x = evt.pageX - $(this).offset().left;
+                                markData.width = Math.abs((evt.pageX - markData.docx));
                                 drawable.css({
-                                    "left": evt.pageX - $(this).offset().left,
-                                    "width": Math.abs((evt.pageX - markData.docx))
+                                    "left": markData.x,
+                                    "width": markData.width
                                 });
                             }
                             if ((evt.pageY - markData.docy) >= 0) {
-                                drawable.css("height", Math.abs((evt.pageY - markData.docy)));
+                                markData.height = Math.abs((evt.pageY - markData.docy));
+                                drawable.css("height", markData.height);
                             } else {
                                 // change y position along with height
+                                markData.y = evt.pageY - $(this).offset().top;
+                                markData.height = Math.abs((evt.pageY - markData.docy));
                                 drawable.css({
-                                    "top": evt.pageY - $(this).offset().top,
-                                    "height": Math.abs((evt.pageY - markData.docy))
+                                    "top": markData.y,
+                                    "height": markData.height
                                 });
                             }
                         });
                     } else {
 
                     }
+                    $(this).trigger("markstart", [this, imageData]);
                 });
                 $(this).on("mouseup", function () {
                     if (config.markProperties.drawable) {
                         $(this).off("mousemove");
                     }
+                    $(this).trigger("markend", [this, imageData]);
+                    imageData = markData = null;
                 });
             });
         }
-    }, cache = {};
+    };
 
     $.fn.mark = function (config) {
         if (!config) {
