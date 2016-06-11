@@ -1,0 +1,16 @@
+/*Common CSS*/
+.mnc-image {
+    position: relative;
+}
+
+.cursor-draw {
+    cursor: crosshair;
+}
+
+/*Theme specific CSS*/
+
+/* Normal theme */
+.mnc-normal .mnc-drawable {
+    border: 2px solid #eee;
+    box-shadow: 0 0 4px -1px #999;
+}

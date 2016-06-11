@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="markandcrop.css" />
+        <style>
+            .image-container {
+                width: 500px;
+                height: 500px;
+                border: 1px solid;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="image-container"></div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+        <script src="markandcrop.js"></script>
+        <script>
+            $(".image-container").mark({
+                src: "./image.jpg",
+                theme: "normal",
+                markProperties: {
+                    drawable: true,
+                    draggable: true,
+                    resizable: true
+                }
+            });
+        </script>
+    </body>
+</html>
