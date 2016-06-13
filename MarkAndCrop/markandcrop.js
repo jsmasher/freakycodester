@@ -59,13 +59,17 @@
         createCopy: function (obj) {
             return JSON.parse(JSON.stringify(obj));
         },
+        checkBoundaryConditions: function (cont, markData) {
+            
+        },
         bindListeners: function (cont, config) {
             var self = this;
             cont.on("imageloaded", function (evt, imageProps) {
                 var markCount = 0,
                     markZIndex = 0,
-                    imageData = null;
-                    markData = null;
+                    imageData = null,
+                    markData = null,
+                    dropSize = config.markProperties.dropSize = config.markProperties.dropSize || [50, 50];
                 // Set default mark properties
                 config.markProperties = config.markProperties || {
                     drawable: true,
@@ -103,11 +107,13 @@
                             // Set width and height of drawable if dimensions are positive, else change the position
                             if ((evt.pageX - markData.docx) >= 0) {
                                 markData.width = Math.abs((evt.pageX - markData.docx));
+                                self.checkBoundaryConditions(this, markData);
                                 drawable.css("width", markData.width);
                             } else {
                                 // change x position along with width
                                 markData.x = evt.pageX - $(this).offset().left;
                                 markData.width = Math.abs((evt.pageX - markData.docx));
+                                self.checkBoundaryConditions(this, markData);
                                 drawable.css({
                                     "left": markData.x,
                                     "width": markData.width
@@ -115,19 +121,34 @@
                             }
                             if ((evt.pageY - markData.docy) >= 0) {
                                 markData.height = Math.abs((evt.pageY - markData.docy));
+                                self.checkBoundaryConditions(this, markData);
                                 drawable.css("height", markData.height);
                             } else {
                                 // change y position along with height
                                 markData.y = evt.pageY - $(this).offset().top;
                                 markData.height = Math.abs((evt.pageY - markData.docy));
+                                self.checkBoundaryConditions(this, markData);
                                 drawable.css({
                                     "top": markData.y,
                                     "height": markData.height
                                 });
                             }
+                            $(this).trigger("markdraw", [this, imageData]);
                         });
                     } else {
-
+                        // Set drawable width, height and position
+                        markData.x -= dropSize[0] / 2;
+                        markData.y -= dropSize[1] / 2;
+                        markData.width = dropSize[0];
+                        markData.height = dropSize[1];
+                        self.checkBoundaryConditions(this, markData);
+                        drawable.css({
+                            "position": "absolute",
+                            "top": markData.y,
+                            "left": markData.x,
+                            "width": markData.width,
+                            "height": markData.height
+                        });
                     }
                     $(this).trigger("markstart", [this, imageData]);
                 });
@@ -149,6 +170,7 @@
         localFn.setProperties(this, config);
         localFn.setBackground(this, config);
         localFn.bindListeners(this, config);
+        return this;
     };
 
     $.fn.crop = function (config) {
